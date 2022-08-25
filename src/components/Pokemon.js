@@ -4,38 +4,54 @@ import '../styling/Pokemon.css'
 export default function Pokemon({pokemon, removePokemon, id, favorites, setFavorites, pokeString}) {
 
     const [imageString, setImageString] = useState(pokeString);
+    const [allImageStrings, setAllImageStrings] = useState([]);
     const [fallback, setFallback] = useState(false);
+    const [imageUrls, setImageUrls] = useState([]);
+    let imagePokes = [];
+    const iterate = (obj) => {  
+        Object.keys(obj).forEach(key => {
+        if (typeof obj[key] === 'string') {
+            var str = obj[key]
+            if (str.indexOf("https://") == 0 && imagePokes.length <= 40) {
+                imagePokes.push(str)     
+            }
+        }
+        if (typeof obj[key] === 'object' && obj[key] !== null) {
+                iterate(obj[key])
+            }
+        })   
+    }
 
     useEffect( () => {
+        fillAllImageStrings()
         if(pokeString){
           setImageString(pokeString);
         }
+
+    
       },[pokeString])
 
     function capitalizeFirstLetter(string) {
-        
         return string.charAt(0).toUpperCase() + string.slice(1);
       }
 
+    function fillAllImageStrings() {
+        iterate(pokemon.sprites)
+        setImageUrls(imagePokes)  
+    }
+
 
     function nextImage() {
-       
-        const imageKeys = Object.keys(pokemon.sprites)
-        const values = Object.values(pokemon.sprites)
-        const index = values.indexOf(imageString)
-        const sliceArray = imageKeys.slice(index + 1)
-        const newArray = sliceArray.concat(imageKeys)
-        
+        const index = imageUrls.indexOf(imageString)
+        const sliceArray = imageUrls.slice(index + 1)
+        const newArray = sliceArray.concat(imageUrls)
         let stop = false;
         for (let i =0; i < newArray.length; i++) {
-            if (newArray[i] !== 'other' && newArray[i] !== 'versions' && stop == false) {
+            if (stop == false) {
                 let name = newArray[i];
-                if (pokemon.sprites[`${name}`] == undefined) {
-         
-                } else {
-                    setImageString(pokemon.sprites[`${name}`])
-                    stop = true
-                }        
+                    console.log("in else, name =", name)
+                    setImageString(name)
+                    stop = true        
             } 
         }       
     }
@@ -65,7 +81,7 @@ export default function Pokemon({pokemon, removePokemon, id, favorites, setFavor
         <div className="pokemonContainer">
             <h3>{capitalizeFirstLetter(pokemon.forms[0].name)}</h3>
             <div className="nextbutton">
-                <img key={id} src={imageString} alt={''} onError={reloadSrc} />
+                <img className="pokemonImage" key={id} src={imageString} alt={''} onError={reloadSrc} />
                 <div>
                     <button onClick={nextImage}>Next Image</button>
                 </div>
@@ -74,6 +90,7 @@ export default function Pokemon({pokemon, removePokemon, id, favorites, setFavor
                 <p>Type: {pokemon.types[0].type['name']}</p>
                 <p>Moves: {displayMoves()}</p>
                 {favorites ? <button class="removePokemon" id={id} onClick={removePokemon}>Remove Pokemon</button> : <></>}
+        
             </div>   
         </div>
     )

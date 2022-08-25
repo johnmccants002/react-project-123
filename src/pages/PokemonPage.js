@@ -52,7 +52,6 @@ export default function PokemonPage() {
     async function filteringPokemon(results) {
         let finalResults = [];
             for (let i = 0; i < results.length; i++){
-                console.log(results[i].url, "URL")
                 if (finalResults.length < 10) {
                     await axios.get(results[i].url)
                     .then((response) => {
