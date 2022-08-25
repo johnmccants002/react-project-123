@@ -19,9 +19,8 @@ export default function PokemonPage() {
        startUp()
     }, [])
 
-    function capitalizeFirstLetter(string) {
-        return string.charAt(0).toUpperCase() + string.slice(1);
-      }
+
+    // Local Storage Crud Functions
 
     function savePokemon(event) {
         setFavorites(prev => [...prev, allPokemon[event.target.id]]);
@@ -34,12 +33,13 @@ export default function PokemonPage() {
         setFavorites(reducedArr)
     }
 
+    // Setting Up LocalStorage Mini DB of Pokemon
+
     function startUp() {
         if(pokeIndex.length === 0) {
             axios.get(`${POKEDB_URL}`)
             .then((response) => {
                 setPokeIndex(response.data.results)
-                console.log("This is the PokeDB: ", response.data)
 
             }).catch((err) => {
                 console.log("Unable to set the PokeDB: ", err)
@@ -100,8 +100,6 @@ export default function PokemonPage() {
 
     function handleChange(event) {
         setSearchText(event.target.value)
-        
-
     }
 
     function handleSubmit(event) {
@@ -114,11 +112,8 @@ export default function PokemonPage() {
         if(!pokeIndex.length) {
             startUp()
         } else {
-            const filteredResults = pokeIndex.filter(p => p['name'].includes(searchText))
-            console.log(filteredResults[0], "<-- Filtered results")
-            
+            const filteredResults = pokeIndex.filter(p => p['name'].includes(searchText))        
             filteringPokemon(filteredResults)
-
         }
     }
 
@@ -140,18 +135,12 @@ export default function PokemonPage() {
                 : 
                 <h3>Pokemon Not Found</h3>    
             }
-
             <div>
                 <h1> Your Favorites </h1>
                 <div className="favoritesContainer">
                     {displayFavorites()}
                 </div>
             </div>
-
-
-
-
-
         </div>
     )
 
