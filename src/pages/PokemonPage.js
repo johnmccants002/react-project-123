@@ -11,21 +11,60 @@ export default function PokemonPage() {
     const [favorites, setFavorites] = useLocalStorage('pokemons', []);
     const [error, setError] = useState(null);
 
+    function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+      }
 
     function getPokemon() {
-        axios.get(`${BASE_URL}/${searchText}`)
+        axios.get(`${BASE_URL}/${searchText.toLowerCase()}`)
         .then((response) => {
             setPokemon(response.data)
             console.log("this is the saved pokemon: ", pokemon)
+            setSearchText('')
         }).catch((err) => {
             console.log('we have an error: ', err, "this is the url", process.env.POKEMON_BASE_URL)
             setError(err)
             setPokemon(null)
+            setSearchText('')
         })
+        
+    }
+
+    function savePokemon() {
+        setFavorites(prev => [...prev, pokemon]);
+        
+    }
+
+    function removePokemon() {
+
+    }
+
+    function displayFavorites() {
+        let views = [];
+        for (let i = 0; i < favorites.length; i++) {
+            views.push(
+                <div className="favorites">
+                    {capitalizeFirstLetter(favorites[i].forms[0].name)}
+                    <img src={favorites[i].sprites.front_shiny} alt={''} />
+                    <button class="removePokemon" id={i} onClick={removePokemon}>Remove Pokemon</button>
+                </div>
+            )
+        }
+
+        return (views)
+    }
+
+    function alreadySaved() {
+        if (favorites.some(fav => fav.forms[0].name === pokemon.forms[0].name)) {
+            return (<h4>Saved</h4>)
+        } else {
+            return (<button onClick={savePokemon}>Save Pokemon to Favorites</button>)
+        }
     }
 
     function handleChange(event) {
         setSearchText(event.target.value)
+        
 
     }
 
@@ -47,11 +86,19 @@ export default function PokemonPage() {
             {pokemon ? 
                 <div>
                     <img src={pokemon.sprites.front_shiny} alt="" />
-                    <h3>{pokemon.forms[0].name}</h3>
+                    <h3>{capitalizeFirstLetter(pokemon.forms[0].name)}</h3>
+                    {alreadySaved()}
                 </div>
                 :
                 <div>Pokemon Not Found</div>
             }
+
+            <div>
+                <h1> Your Favorites </h1>
+                <div className="favoritesContainter">
+                    {displayFavorites()}
+                </div>
+            </div>
 
 
 
