@@ -2,63 +2,99 @@ import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import {useLocalStorage} from '../helper/LocalStorage'
 import '../styling/PokemonPage.css'
+import Pokemon from '../components/Pokemon'
 
-const BASE_URL = "https://pokeapi.co/api/v2/pokemon"
+const POKEDB_URL = "https://pokeapi.co/api/v2/pokemon?limit=100000"
 
 export default function PokemonPage() {
     const [pokemon, setPokemon] = useState(null);
+    const [allPokemon, setAllPokemon] = useState([]);
     const [searchText, setSearchText] = useState('');
     const [favorites, setFavorites] = useLocalStorage('pokemons', []);
     const [error, setError] = useState(null);
+    const [pokeIndex, setPokeIndex] = useLocalStorage('allPokemons', []);
+
+
+    useEffect(() => {
+       startUp()
+    }, [])
 
     function capitalizeFirstLetter(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
       }
 
-    function getPokemon() {
-        axios.get(`${BASE_URL}/${searchText.toLowerCase()}`)
-        .then((response) => {
-            setPokemon(response.data)
-            console.log("this is the saved pokemon: ", pokemon)
-            setSearchText('')
-        }).catch((err) => {
-            console.log('we have an error: ', err, "this is the url", process.env.POKEMON_BASE_URL)
-            setError(err)
-            setPokemon(null)
-            setSearchText('')
-        })
+    function savePokemon(event) {
+        setFavorites(prev => [...prev, allPokemon[event.target.id]]);
         
     }
 
-    function savePokemon() {
-        setFavorites(prev => [...prev, pokemon]);
-        
+    function removePokemon(event) {
+        const reducedArr = [...favorites]
+        reducedArr.splice(event.target.id, 1)
+        setFavorites(reducedArr)
     }
 
-    function removePokemon() {
+    function startUp() {
+        if(pokeIndex.length === 0) {
+            axios.get(`${POKEDB_URL}`)
+            .then((response) => {
+                setPokeIndex(response.data.results)
+                console.log("This is the PokeDB: ", response.data)
 
+            }).catch((err) => {
+                console.log("Unable to set the PokeDB: ", err)
+            })
+        }
     }
+
+    async function filteringPokemon(results) {
+        let finalResults = [];
+            for (let i = 0; i < results.length; i++){
+                console.log(results[i].url, "URL")
+                if (finalResults.length < 10) {
+                    await axios.get(results[i].url)
+                    .then((response) => {
+                        finalResults.push(response.data)
+                    }).catch((err) => {
+                    
+                    })
+                }        
+        }
+        setAllPokemon(finalResults)
+    }   
+
+    function displayResults() {
+        let views = [];
+        for (let i =0; i < allPokemon.length; i++) {
+            views.push(
+                <div className="results">
+                    <Pokemon pokemon={allPokemon[i]}/>
+                    {alreadySaved(allPokemon[i].forms[0].name, i)}
+                </div>
+            )
+        }
+        return (views)
+    }
+
 
     function displayFavorites() {
         let views = [];
         for (let i = 0; i < favorites.length; i++) {
             views.push(
                 <div className="favorites">
-                    {capitalizeFirstLetter(favorites[i].forms[0].name)}
-                    <img src={favorites[i].sprites.front_shiny} alt={''} />
+                    <Pokemon pokemon={favorites[i]} />
                     <button class="removePokemon" id={i} onClick={removePokemon}>Remove Pokemon</button>
                 </div>
             )
         }
-
         return (views)
     }
 
-    function alreadySaved() {
-        if (favorites.some(fav => fav.forms[0].name === pokemon.forms[0].name)) {
+    function alreadySaved(name, i) {
+        if (favorites.some(fav => fav.forms[0].name === name)) {
             return (<h4>Saved</h4>)
         } else {
-            return (<button onClick={savePokemon}>Save Pokemon to Favorites</button>)
+            return (<button id={i} onClick={savePokemon}>Save Pokemon to Favorites</button>)
         }
     }
 
@@ -70,10 +106,21 @@ export default function PokemonPage() {
 
     function handleSubmit(event) {
         event.preventDefault()
-        getPokemon()
+        setAllPokemon([]);
+        if (searchText == '') {
+            setAllPokemon([]);
+            return
+        }
+        if(!pokeIndex.length) {
+            startUp()
+        } else {
+            const filteredResults = pokeIndex.filter(p => p['name'].includes(searchText))
+            console.log(filteredResults[0], "<-- Filtered results")
+            
+            filteringPokemon(filteredResults)
 
+        }
     }
- 
 
     return (
         <div>
@@ -81,21 +128,22 @@ export default function PokemonPage() {
                 <label>Search Pokemon by name:
                     <input type="text" value={searchText} onChange={handleChange} />
                 </label>
-                <input type="submit" value="Submit" />
+                <input type="submit" value="Search" />
             </form>
-            {pokemon ? 
+            { allPokemon.length > 0 ?
                 <div>
-                    <img src={pokemon.sprites.front_shiny} alt="" />
-                    <h3>{capitalizeFirstLetter(pokemon.forms[0].name)}</h3>
-                    {alreadySaved()}
-                </div>
-                :
-                <div>Pokemon Not Found</div>
+                    <h1>Results: </h1>
+                    <div className="resultsContainer"> 
+                        {displayResults()} 
+                    </div>
+                </div> 
+                : 
+                <h3>Pokemon Not Found</h3>    
             }
 
             <div>
                 <h1> Your Favorites </h1>
-                <div className="favoritesContainter">
+                <div className="favoritesContainer">
                     {displayFavorites()}
                 </div>
             </div>

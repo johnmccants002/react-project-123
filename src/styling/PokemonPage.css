@@ -1,0 +1,31 @@
+.favorites {
+    display: flex;
+    flex-direction: column;
+    
+    padding-top: 40px;
+    
+}
+
+.favoritesContainer {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    grid-auto-rows: minmax(100px, auto);
+    position: relative;
+}
+
+.results {
+    display: flex;
+    flex-direction: column;
+    padding-top: 40px;
+    
+}
+
+
+.resultsContainer {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    grid-auto-rows: minmax(100px, auto);
+    position: relative;
+}
