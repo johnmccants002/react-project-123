@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import '../styling/Pokemon.css'
 
-export default function Pokemon({pokemon}) {
+export default function Pokemon({pokemon, removePokemon, id, favorites, setFavorites}) {
 
     const [imageString, setImageString] = useState(pokemon.sprites.front_shiny);
     function capitalizeFirstLetter(string) {
@@ -45,14 +45,19 @@ export default function Pokemon({pokemon}) {
     }
 
     return (
-        <div className="favorites">
+        <div className="pokemonContainer">
             <h3>{capitalizeFirstLetter(pokemon.forms[0].name)}</h3>
-            <div>
-            <img className="pokemonImage" src={imageString} alt={''} />
-            <button onClick={nextImage}>Next Image</button>
+            <div className="nextbutton">
+                <img className="pokemonImage" src={imageString} alt={''} />
+                <div>
+                    <button onClick={nextImage}>Next Image</button>
+                </div>
             </div>
-            <p>Type: {pokemon.types[0].type['name']}</p>
-            <p>Moves: {displayMoves()}</p>               
+            <div className="about">
+                <p>Type: {pokemon.types[0].type['name']}</p>
+                <p>Moves: {displayMoves()}</p>
+                {favorites ? <button class="removePokemon" id={id} onClick={removePokemon}>Remove Pokemon</button> : <></>}
+            </div>   
         </div>
     )
 

@@ -82,8 +82,7 @@ export default function PokemonPage() {
         for (let i = 0; i < favorites.length; i++) {
             views.push(
                 <div className="favorites">
-                    <Pokemon pokemon={favorites[i]} />
-                    <button class="removePokemon" id={i} onClick={removePokemon}>Remove Pokemon</button>
+                    <Pokemon pokemon={favorites[i]} removePokemon={removePokemon} id={i} favorites={favorites} setFavorites={setFavorites} />
                 </div>
             )
         }
