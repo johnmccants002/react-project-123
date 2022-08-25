@@ -3,4 +3,14 @@
 
 ## Technologies Used
 
-- Reactjs
+- React.js
+- Axios
+
+
+## Features
+
+- Search Pokemon by name
+- Save Pokemon to your Favorites
+- Remove Pokemon from your Favorites
+- Pokemon stored using LocalStorage
+
