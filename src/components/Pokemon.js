@@ -1,9 +1,17 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import '../styling/Pokemon.css'
 
-export default function Pokemon({pokemon, removePokemon, id, favorites, setFavorites}) {
+export default function Pokemon({pokemon, removePokemon, id, favorites, setFavorites, pokeString}) {
 
-    const [imageString, setImageString] = useState(pokemon.sprites.front_shiny);
+    const [imageString, setImageString] = useState(pokeString);
+    const [fallback, setFallback] = useState(false);
+
+    useEffect( () => {
+        if(pokeString){
+          setImageString(pokeString);
+        }
+      },[pokeString])
+
     function capitalizeFirstLetter(string) {
         
         return string.charAt(0).toUpperCase() + string.slice(1);
@@ -44,11 +52,20 @@ export default function Pokemon({pokemon, removePokemon, id, favorites, setFavor
        return (views)
     }
 
+    const reloadSrc = (e) => { 
+        if(fallback){
+          e.target.src = "";
+        }else{
+          e.target.src = imageString
+          setFallback(true)
+        }
+      }
+
     return (
         <div className="pokemonContainer">
             <h3>{capitalizeFirstLetter(pokemon.forms[0].name)}</h3>
             <div className="nextbutton">
-                <img className="pokemonImage" src={imageString} alt={''} />
+                <img key={id} src={imageString} alt={''} onError={reloadSrc} />
                 <div>
                     <button onClick={nextImage}>Next Image</button>
                 </div>

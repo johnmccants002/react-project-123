@@ -7,7 +7,6 @@ import Pokemon from '../components/Pokemon'
 const POKEDB_URL = "https://pokeapi.co/api/v2/pokemon?limit=100000"
 
 export default function PokemonPage() {
-    const [pokemon, setPokemon] = useState(null);
     const [allPokemon, setAllPokemon] = useState([]);
     const [searchText, setSearchText] = useState('');
     const [favorites, setFavorites] = useLocalStorage('pokemons', []);
@@ -28,9 +27,12 @@ export default function PokemonPage() {
     }
 
     function removePokemon(event) {
-        const reducedArr = [...favorites]
-        reducedArr.splice(event.target.id, 1)
-        setFavorites(reducedArr)
+        console.log("Button id = ", event.target.id)
+        const newArray = favorites.filter(function(fav) {
+            return fav.forms[0].name !== event.target.id
+        })
+        setFavorites(newArray)
+      
     }
 
     // Setting Up LocalStorage Mini DB of Pokemon
@@ -68,7 +70,7 @@ export default function PokemonPage() {
         for (let i =0; i < allPokemon.length; i++) {
             views.push(
                 <div className="results">
-                    <Pokemon pokemon={allPokemon[i]}/>
+                    <Pokemon pokemon={allPokemon[i]} pokeString={allPokemon[i].sprites.front_shiny}/>
                     {alreadySaved(allPokemon[i].forms[0].name, i)}
                 </div>
             )
@@ -82,7 +84,7 @@ export default function PokemonPage() {
         for (let i = 0; i < favorites.length; i++) {
             views.push(
                 <div className="favorites">
-                    <Pokemon pokemon={favorites[i]} removePokemon={removePokemon} id={i} favorites={favorites} setFavorites={setFavorites} />
+                    <Pokemon pokemon={favorites[i]} removePokemon={removePokemon} id={favorites[i].forms[0].name} favorites={favorites} setFavorites={setFavorites} pokeString={favorites[i].sprites.front_shiny} />
                 </div>
             )
         }
@@ -98,7 +100,7 @@ export default function PokemonPage() {
     }
 
     function handleChange(event) {
-        setSearchText(event.target.value)
+        setSearchText(event.target.value.toLowerCase());
     }
 
     function handleSubmit(event) {
