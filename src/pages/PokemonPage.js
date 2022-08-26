@@ -3,6 +3,9 @@ import axios from 'axios';
 import {useLocalStorage} from '../helper/LocalStorage'
 import '../styling/PokemonPage.css'
 import Pokemon from '../components/Pokemon'
+import SearchIcon from '@mui/icons-material/Search';
+import { Icon } from '@iconify/react';
+
 
 const POKEDB_URL = "https://pokeapi.co/api/v2/pokemon?limit=100000"
 
@@ -12,12 +15,10 @@ export default function PokemonPage() {
     const [favorites, setFavorites] = useLocalStorage('pokemons', []);
     const [error, setError] = useState(null);
     const [pokeIndex, setPokeIndex] = useLocalStorage('allPokemons', []);
-
-
+    
     useEffect(() => {
        startUp()
     }, [])
-
 
     // Local Storage Crud Functions
 
@@ -68,7 +69,7 @@ export default function PokemonPage() {
         let views = [];
         for (let i =0; i < allPokemon.length; i++) {
             views.push(
-                <div className="results">
+                <div className="results" >
                     <Pokemon pokemon={allPokemon[i]} pokeString={allPokemon[i].sprites.front_shiny}/>
                     {alreadySaved(allPokemon[i].forms[0].name, i)}
                 </div>
@@ -92,9 +93,10 @@ export default function PokemonPage() {
 
     function alreadySaved(name, i) {
         if (favorites.some(fav => fav.forms[0].name === name)) {
-            return (<h4>Saved</h4>)
+            return (<h4>Saved!</h4>)
         } else {
-            return (<button id={i} onClick={savePokemon}>Save Pokemon to Favorites</button>)
+            return (<button className="favoriteButton" id={i} onClick={savePokemon}>Favorite
+            </button>)
         }
     }
 
@@ -119,12 +121,17 @@ export default function PokemonPage() {
 
     return (
         <div>
-            <form onSubmit={handleSubmit}>
-                <label>Search Pokemon by name:
-                    <input type="text" value={searchText} onChange={handleChange} />
-                </label>
-                <input type="submit" value="Search" />
-            </form>
+            <div className="header">
+                <h1>Pokemon Project</h1>
+                <Icon icon="mdi:pokeball" width="50" height="50"/>
+                <div className="headerSearch">
+                    <form className="searchForm" onSubmit={handleSubmit}>
+                        <input className="headerSearchInput" type="text" value={searchText} onChange={handleChange} />
+                        <input type="submit" value="Search"></input>
+                    </form>
+                </div>
+                <h3 className="favoriteCount">Favorited Pokemon: {favorites.length}</h3>
+            </div>
             { allPokemon.length > 0 ?
                 <div>
                     <h1>Results: </h1>
